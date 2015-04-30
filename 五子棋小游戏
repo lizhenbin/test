@@ -1,0 +1,358 @@
+import java.awt.*;
+import java.awt.event.*;
+import java.applet.Applet;
+import java.awt.Color;
+ 
+public class GoBang extends Applet implements ActionListener, MouseListener,
+  MouseMotionListener, ItemListener {
+ int color = 0;// 旗子的颜色标识 0:白子 1:黑子
+ 
+ boolean isStart = false;// 游戏开始标志
+ 
+ int bodyArray[][] = new int[16][16]; // 设置棋盘棋子状态 0 无子 1 白子 2 黑子
+ 
+ Button b1 = new Button("游戏开始");
+ 
+ Button b2 = new Button("重置游戏");
+ 
+ Label lblWin = new Label(" ");
+ 
+ Checkbox ckbHB[] = new Checkbox[2];
+ 
+ CheckboxGroup ckgHB = new CheckboxGroup();
+ 
+ public void init() {
+  setLayout(null);
+ 
+  addMouseListener(this);
+  add(b1);
+  b1.setBounds(330, 50, 80, 30);
+  b1.addActionListener(this);
+  add(b2);
+  b2.setBounds(330, 90, 80, 30);
+  b2.addActionListener(this);
+  ckbHB[0] = new Checkbox("白子先", ckgHB, false);
+  ckbHB[0].setBounds(320, 20, 60, 30);
+  ckbHB[1] = new Checkbox("黑子先", ckgHB, false);
+  ckbHB[1].setBounds(380, 20, 60, 30);
+  add(ckbHB[0]);
+  add(ckbHB[1]);
+  ckbHB[0].addItemListener(this);
+  ckbHB[1].addItemListener(this);
+  add(lblWin);
+  lblWin.setBounds(330, 130, 80, 30);
+ 
+  gameInit();
+  this.resize(new Dimension(450,350));
+ }
+ 
+ public void itemStateChanged(ItemEvent e) {
+  if (ckbHB[0].getState()) // 选择黑子先还是白子先
+  {
+   color = 0;
+  } else {
+   color= 1;
+  }
+ }
+ 
+ public void actionPerformed(ActionEvent e) {
+  if (e.getSource() == b1) {
+   gameStart();
+  } else {
+   reStart();
+  }
+ }
+ 
+ public void mousePressed(MouseEvent e) {
+ }
+ 
+ public void mouseClicked(MouseEvent e) {
+  int x1, y1;
+  x1 = e.getX();
+  y1 = e.getY();
+  if (e.getX() < 20 || e.getX() > 300 || e.getY() < 20 || e.getY() > 300) {
+   return;
+  }
+ 
+  if (x1 % 20 > 10) {
+   x1 += 20;
+  }
+ 
+  if (y1 % 20 > 10) {
+   y1 += 20;
+  }
+ 
+  x1 = x1 / 20 * 20;
+  y1 = y1 / 20 * 20;
+  setDown(x1, y1);
+ 
+ }
+ 
+ public void mouseEntered(MouseEvent e) {
+ }
+ 
+ public void mouseExited(MouseEvent e) {
+ }
+ 
+ public void mouseReleased(MouseEvent e) {
+ }
+ 
+ public void mouseDragged(MouseEvent e) {
+ }
+ 
+ public void mouseMoved(MouseEvent e) {
+ }
+ 
+ public void paint(Graphics g) {
+  g.setColor(Color.lightGray);
+  g.fill3DRect(10, 10, 300, 300, true);
+  g.setColor(Color.black);
+  for (int i = 1; i < 16; i++) {
+   g.drawLine(20, 20 * i, 300, 20 * i);
+   g.drawLine(20 * i, 20, 20 * i, 300);
+  }
+ }
+ 
+ public void setDown(int x, int y) // 落子
+ {
+  if (!isStart) // 判断游戏未开始
+  {
+   return;
+  }
+ 
+  if (bodyArray[x / 20][y / 20] != 0) {
+   return;
+  }
+  Graphics g = getGraphics();
+ 
+  if (color == 1)// 判断黑子还是白子
+  {
+   g.setColor(Color.black);
+   color = 0;
+  } else {
+   g.setColor(Color.white);
+   color = 1;
+  }
+ 
+  g.fillOval(x - 10, y - 10, 20, 20);
+ 
+  bodyArray[x / 20][y / 20] = color + 1;
+ 
+  if (gameWin1(x / 20, y / 20)) // 判断输赢
+  {
+   lblWin.setText(startColor(color) + "赢了!");
+   isStart = false;
+  }
+ 
+  if (gameWin2(x / 20, y / 20)) // 判断输赢
+  {
+   lblWin.setText(startColor(color) + "赢了!");
+   isStart = false;
+  }
+ 
+  if (gameWin3(x / 20, y / 20)) // 判断输赢
+  {
+   lblWin.setText(startColor(color) + "赢了!");
+   isStart = false;
+  }
+ 
+  if (gameWin4(x / 20, y / 20)) // 判断输赢
+  {
+   lblWin.setText(startColor(color) + "赢了!");
+   isStart = false;
+  }
+ }
+ 
+ public String startColor(int x) {
+  if (x == 0) {
+   return "黑子";
+  } else {
+   return "白子";
+  }
+ }
+ 
+ public void gameStart() // 游戏开始
+ {
+  isStart = true;
+  enableGame(false);
+  b2.setEnabled(true);
+ }
+ 
+ public void gameInit() // 游戏开始初始化
+ {
+  isStart = false;
+  enableGame(true);
+  b2.setEnabled(false);
+  ckbHB[0].setState(true);
+ 
+  for (int i = 0; i < 16; i++) {
+   for (int j = 0; j < 16; j++) {
+    bodyArray[i][j] = 0;
+   }
+  }
+  lblWin.setText("");
+ }
+ 
+ public void reStart() // 游戏重新开始
+ {
+  repaint();
+  gameInit();
+ }
+ 
+ public void enableGame(boolean e) // 设置组件状态
+ {
+  b1.setEnabled(e);
+  b2.setEnabled(e);
+  ckbHB[0].setEnabled(e);
+  ckbHB[1].setEnabled(e);
+ }
+ 
+ public boolean gameWin1(int x, int y) // 判断输赢 横
+ {
+  int x1, y1, t = 1;
+  x1 = x;
+  y1 = y;
+ 
+  for (int i = 1; i < 5; i++) {
+   if (x1 > 15) {
+    break;
+   }
+   if (bodyArray[x1 + i][y1] == bodyArray[x][y]) {
+    t += 1;
+   } else {
+    break;
+   }
+ 
+  }
+ 
+  for (int i = 1; i < 5; i++) {
+   if (x1 < 1) {
+    break;
+   }
+ 
+   if (bodyArray[x1 - i][y1] == bodyArray[x][y]) {
+    t += 1;
+   } else {
+    break;
+   }
+  }
+ 
+  if (t > 4) {
+   return true;
+  } else {
+   return false;
+  }
+ }
+ 
+ public boolean gameWin2(int x, int y) // 判断输赢 竖
+ {
+  int x1, y1, t = 1;
+  x1 = x;
+  y1 = y;
+ 
+  for (int i = 1; i < 5; i++) {
+   if (x1 > 15) {
+    break;
+   }
+   if (bodyArray[x1][y1 + i] == bodyArray[x][y]) {
+    t += 1;
+   } else {
+    break;
+   }
+ 
+  }
+ 
+  for (int i = 1; i < 5; i++) {
+   if (x1 < 1) {
+    break;
+   }
+ 
+   if (bodyArray[x1][y1 - i] == bodyArray[x][y]) {
+    t += 1;
+   } else {
+    break;
+   }
+  }
+ 
+  if (t > 4) {
+   return true;
+  } else {
+   return false;
+  }
+ }
+ 
+ public boolean gameWin3(int x, int y) // 判断输赢 左斜
+ {
+  int x1, y1, t = 1;
+  x1 = x;
+  y1 = y;
+ 
+  for (int i = 1; i < 5; i++) {
+   if (x1 > 15) {
+    break;
+   }
+   if (bodyArray[x1 + i][y1 - i] == bodyArray[x][y]) {
+    t += 1;
+   } else {
+    break;
+   }
+ 
+  }
+ 
+  for (int i = 1; i < 5; i++) {
+   if (x1 < 1) {
+    break;
+   }
+ 
+   if (bodyArray[x1 - i][y1 + i] == bodyArray[x][y]) {
+    t += 1;
+   } else {
+    break;
+   }
+  }
+ 
+  if (t > 4) {
+   return true;
+  } else {
+   return false;
+  }
+ }
+ 
+ public boolean gameWin4(int x, int y) // 判断输赢 左斜
+ {
+  int x1, y1, t = 1;
+  x1 = x;
+  y1 = y;
+ 
+  for (int i = 1; i < 5; i++) {
+   if (x1 > 15) {
+    break;
+   }
+   if (bodyArray[x1 + i][y1 + i] == bodyArray[x][y]) {
+    t += 1;
+   } else {
+    break;
+   }
+ 
+  }
+ 
+  for (int i = 1; i < 5; i++) {
+   if (x1 < 1) {
+    break;
+   }
+ 
+   if (bodyArray[x1 - i][y1 - i] == bodyArray[x][y]) {
+    t += 1;
+   } else {
+    break;
+   }
+  }
+ 
+  if (t > 4) {
+   return true;
+  } else {
+   return false;
+  }
+ }
+}
+ 
